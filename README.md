@@ -14,6 +14,10 @@ Use an IDE like VS.
 
 * .Net 5
 
+#### Part 2 Dependencies:
+
+* SQL Client Library
+
 ### Installing
 
 * Clone the folder into your system.
