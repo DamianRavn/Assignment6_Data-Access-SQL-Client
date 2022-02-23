@@ -11,47 +11,91 @@ namespace ProjectB
         {
             Console.WriteLine("Hello World!");
 
-            ICustomerRepository repository = new CustomerRepository();
-            TestSelectAll(repository);
+            IRepository<Customer> repository = new CustomerRepository();
+            //TestSelectAll(repository);
+            //TestSelect(repository);
+            TestInsert(repository);
+            TestUpdate(repository);
+            TestDelete(repository);
         }
 
-        static void TestSelectAll(ICustomerRepository repository)
+        static void TestSelectAll(IRepository<Customer> repository)
         {
-            PrintCustomers(repository.GetAllCustomers());
+            PrintCustomers(repository.GetAll());
         }
-        static void TestSelect(ICustomerRepository repository)
+        static void TestSelect(IRepository<Customer> repository)
         {
-            PrintCustomer(repository.GetCustomer(0));
+            PrintCustomer(repository.GetById(34));
         }
-        static void TestInsert(ICustomerRepository repository)
+        static void TestInsert(IRepository<Customer> repository)
         {
             Customer customer = new Customer()
             {
-                CustomerId = 0,
                 FirstName = "Test",
                 LastName = "Testerson",
                 Country = "DK",
+                PostalCode = "1111",
                 Phone = "88888888",
                 Email = "Test@Test.dk"
 
             };
 
-            if (repository.AddNewCustomer(customer))
+            if (repository.Add(customer))
             {
                 Console.WriteLine($"{customer.FirstName} was inserted successfully");
+                PrintCustomer(repository.GetById(60));
             }
             else
             {
                 Console.Error.WriteLine($"{customer.FirstName} not inserted");
             }
         }
-        static void TestUpdate(ICustomerRepository repository)
+        static void TestUpdate(IRepository<Customer> repository)
         {
+            Customer customer = new Customer()
+            {
+                CustomerId = 60,
+                FirstName = "Tester",
+                LastName = "Testerson",
+                Country = "DK",
+                PostalCode = "1111",
+                Phone = "88888888",
+                Email = "Test@Test.dk"
 
+            };
+
+            if (repository.Update(customer))
+            {
+                Console.WriteLine($"{customer.FirstName} was updated successfully");
+                PrintCustomer(repository.GetById(60));
+            }
+            else
+            {
+                Console.Error.WriteLine($"{customer.FirstName} not inserted");
+            }
         }
-        static void TestDelete(ICustomerRepository repository)
+        static void TestDelete(IRepository<Customer> repository)
         {
+            Customer customer = new Customer()
+            {
+                CustomerId = 60,
+                FirstName = "Tester",
+                LastName = "Testerson",
+                Country = "DK",
+                PostalCode = "1111",
+                Phone = "88888888",
+                Email = "Test@Test.dk"
 
+            };
+            PrintCustomers(repository.GetAll());
+            if (repository.Delete(customer))
+            {
+                PrintCustomers(repository.GetAll());
+            }
+            else
+            {
+                Console.Error.WriteLine($"60 not deleted");
+            }
         }
 
         static void PrintCustomers(List<Customer> customers)
@@ -64,7 +108,7 @@ namespace ProjectB
 
         static void PrintCustomer(Customer customer)
         {
-            Console.WriteLine($"---- {customer.CustomerId}  {customer.FirstName}    {customer.LastName} {customer.Country}  {customer.Phone}    {customer.Email}");
+            Console.WriteLine($"---- {customer.CustomerId}  {customer.FirstName}    {customer.LastName} {customer.Country} {customer.PostalCode}  {customer.Phone}    {customer.Email} ----");
         }
     }
 }
