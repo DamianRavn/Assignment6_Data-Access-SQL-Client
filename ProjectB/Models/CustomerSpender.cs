@@ -9,6 +9,6 @@ namespace ProjectB.Models
     public class CustomerSpender
     {
         public Customer Customer { get; set; }
-        public double Amount { get; set; }
+        public decimal Amount { get; set; }
     }
 }

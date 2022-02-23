@@ -139,6 +139,52 @@ namespace ProjectB.Repositories
 
         public List<CustomerSpender> GetHighestSpenders()
         {
+            List<CustomerSpender> customerSpenderList = new List<CustomerSpender>();
+            string sql = "SELECT Customer.CustomerID, Customer.FirstName, Customer.LastName, Customer.Country, Customer.PostalCode, Customer.Phone, Customer.Email, Invoice.CustomerID, COUNT(Invoice.Total) FROM Customer INNER JOIN Invoice ON Customer.CustomerID = Invoice.CustomerID GROUP BY Customer.CustomerID ORDER BY COUNT(Invoice.Total) DESC";
+
+            try
+            {
+                //Connect
+                using (SqlConnection connection = new SqlConnection(ConnectionStringHelper.GetConnectionString()))
+                {
+                    connection.Open();
+                    //Make a command
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        //Reader
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                //Handle result
+                                Customer customer = new Customer();
+                                customer.CustomerId = reader.GetInt32(0);
+                                customer.FirstName = reader.GetString(1);
+                                customer.LastName = reader.GetString(2);
+                                customer.Country = reader.IsDBNull(3) ? "undefined" : reader.GetString(3);
+                                customer.PostalCode = reader.IsDBNull(4) ? "undefined" : reader.GetString(4);
+                                customer.Phone = reader.IsDBNull(5) ? "undefined" : reader.GetString(5);
+                                customer.Email = reader.GetString(6);
+
+                                CustomerSpender spender = new CustomerSpender();
+                                spender.Customer = customer;
+                                spender.Amount = reader.GetDecimal(8);
+                                customerSpenderList.Add(spender);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                Console.Error.WriteLine(ex.Message);
+            }
+
+            return customerSpenderList;
+        }
+
+        public CustomerGenre GetCustomersPopularGenre(Customer customer)
+        {
             throw new NotImplementedException();
         }
 

@@ -21,7 +21,8 @@ namespace ProjectB
             ICustomerRepository customerRepository = new CustomerRepository();
             //TestSelectName(customerRepository);
             //TestPage(customerRepository);
-            TestCountry(customerRepository);
+            //TestCountry(customerRepository);
+            TestSpenders(customerRepository);
         }
 
         static void TestSelectAll(IRepository<Customer> repository)
@@ -118,6 +119,11 @@ namespace ProjectB
             PrintALLCountryPopulation(customerRepository.GetCountryCustomerPopulation());
         }
 
+        private static void TestSpenders(ICustomerRepository customerRepository)
+        {
+            PrintAllSpenders(customerRepository.GetHighestSpenders());
+        }
+
         static void PrintCustomers(List<Customer> customers)
         {
             foreach (var customer in customers)
@@ -142,6 +148,18 @@ namespace ProjectB
         static void PrintCountryPopulation(CustomerCountry populationObject)
         {
             Console.WriteLine($"---- {populationObject.Country}, {populationObject.Population} ----");
+        }
+
+        static void PrintAllSpenders(List<CustomerSpender> spendersList)
+        {
+            foreach (var spender in spendersList)
+            {
+                PrintSpender(spender);
+            }
+        }
+        static void PrintSpender(CustomerSpender spender)
+        {
+            Console.WriteLine($"---- {spender.Customer.CustomerId} - {spender.Customer.FirstName} {spender.Customer.LastName} spent total: {spender.Amount} ----");
         }
     }
 }

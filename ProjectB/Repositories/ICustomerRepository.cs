@@ -12,5 +12,7 @@ namespace ProjectB.Repositories
         public List<CustomerCountry> GetCountryCustomerPopulation();
 
         public List<CustomerSpender> GetHighestSpenders();
+
+        public CustomerGenre GetCustomersPopularGenre(Customer customer);
     }
 }
