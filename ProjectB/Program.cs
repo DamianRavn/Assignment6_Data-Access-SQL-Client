@@ -14,9 +14,14 @@ namespace ProjectB
             IRepository<Customer> repository = new CustomerRepository();
             //TestSelectAll(repository);
             //TestSelect(repository);
-            TestInsert(repository);
-            TestUpdate(repository);
-            TestDelete(repository);
+            //TestInsert(repository);
+            //TestUpdate(repository);
+            //TestDelete(repository);
+
+            ICustomerRepository customerRepository = new CustomerRepository();
+            //TestSelectName(customerRepository);
+            //TestPage(customerRepository);
+            TestCountry(customerRepository);
         }
 
         static void TestSelectAll(IRepository<Customer> repository)
@@ -31,8 +36,8 @@ namespace ProjectB
         {
             Customer customer = new Customer()
             {
-                FirstName = "Test",
-                LastName = "Testerson",
+                FirstName = "Bjorgen",
+                LastName = "Hansen",
                 Country = "DK",
                 PostalCode = "1111",
                 Phone = "88888888",
@@ -98,6 +103,21 @@ namespace ProjectB
             }
         }
 
+        private static void TestSelectName(ICustomerRepository customerRepository)
+        {
+            PrintCustomers(customerRepository.GetByName("Hansen"));
+        }
+
+        private static void TestPage(ICustomerRepository customerRepository)
+        {
+            PrintCustomers(customerRepository.GetCustomerPage(30, 30));
+        }
+
+        private static void TestCountry(ICustomerRepository customerRepository)
+        {
+            PrintALLCountryPopulation(customerRepository.GetCountryCustomerPopulation());
+        }
+
         static void PrintCustomers(List<Customer> customers)
         {
             foreach (var customer in customers)
@@ -108,7 +128,20 @@ namespace ProjectB
 
         static void PrintCustomer(Customer customer)
         {
-            Console.WriteLine($"---- {customer.CustomerId}  {customer.FirstName}    {customer.LastName} {customer.Country} {customer.PostalCode}  {customer.Phone}    {customer.Email} ----");
+            Console.WriteLine($"---- {customer.CustomerId}, {customer.FirstName} {customer.LastName}, {customer.Country}, {customer.PostalCode}, {customer.Phone}, {customer.Email} ----");
+        }
+
+        static void PrintALLCountryPopulation(List<CustomerCountry> populationObjectList)
+        {
+            foreach (var populationObject in populationObjectList)
+            {
+                PrintCountryPopulation(populationObject);
+            }
+        }
+
+        static void PrintCountryPopulation(CustomerCountry populationObject)
+        {
+            Console.WriteLine($"---- {populationObject.Country}, {populationObject.Population} ----");
         }
     }
 }
