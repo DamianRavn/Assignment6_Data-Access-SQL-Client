@@ -7,9 +7,10 @@ namespace ProjectB.Repositories
         public static string GetConnectionString()
         {
             SqlConnectionStringBuilder connectionStringBuilder = new SqlConnectionStringBuilder();
-            connectionStringBuilder.DataSource = "STATIONARYDRAGO\\SQLEXPRESS";
+            connectionStringBuilder.DataSource = @"STATIONARYDRAGO\SQLEXPRESS";
             connectionStringBuilder.InitialCatalog = "Chinook";
             connectionStringBuilder.IntegratedSecurity = true;
+            connectionStringBuilder.TrustServerCertificate = true;
             return connectionStringBuilder.ConnectionString;
         }
     }
