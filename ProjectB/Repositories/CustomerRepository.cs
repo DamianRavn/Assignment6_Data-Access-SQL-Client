@@ -173,7 +173,6 @@ namespace ProjectB.Repositories
 
                                 CustomerSpender spender = new CustomerSpender();
                                 spender.Customer = customer;
-                                int i = reader.GetInt32(7);
                                 spender.Amount = reader.GetDecimal(8);
                                 customerSpenderList.Add(spender);
                             }
@@ -191,7 +190,46 @@ namespace ProjectB.Repositories
 
         public CustomerGenre GetCustomersPopularGenre(Customer customer)
         {
-            throw new NotImplementedException();
+            CustomerGenre customerGenre = new CustomerGenre();
+            customerGenre.Customer = customer;
+
+            string sql =
+                "SELECT TOP 2 Invoice.InvoiceID, InvoiceLine.InvoiceID, InvoiceLine.TrackID" +
+                "FROM Invoice WHERE Invoice.CustomerId = @CustomerId " +
+                "INNER JOIN InvoiceLine " +
+                "ON Invoice.InvoiceID = InvoiceLine.InvoiceID";
+
+            try
+            {
+                //Connect
+                using (SqlConnection connection = new SqlConnection(ConnectionStringHelper.GetConnectionString()))
+                {
+                    connection.Open();
+                    //Make a command
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@CustomerId", customer.CustomerId);
+                        //Reader
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                //Handle result
+                                var i = reader.GetInt32(0);
+                                var ii = reader.GetInt32(1);
+                                var iii = reader.GetInt32(2);
+                                Console.WriteLine($"1: {i}, 2: {ii}, 3: {iii}");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                Console.Error.WriteLine(ex.Message);
+            }
+
+            return customerGenre;
         }
 
         public List<Customer> GetAll()

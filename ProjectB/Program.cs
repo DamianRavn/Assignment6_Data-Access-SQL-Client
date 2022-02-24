@@ -11,19 +11,20 @@ namespace ProjectB
         {
             Console.WriteLine("Hello World!");
 
-            IRepository<Customer> repository = new CustomerRepository();
+            ICustomerRepository repository = new CustomerRepository();
             //TestSelectAll(repository);
             //TestSelect(repository);
             //TestInsert(repository);
             //TestUpdate(repository);
             //TestDelete(repository);
 
-            ICustomerRepository customerRepository = new CustomerRepository();
-            //TestSelectName(customerRepository);
-            //TestPage(customerRepository);
-            //TestCountry(customerRepository);
-            TestSpenders(customerRepository);
+            //TestSelectName(repository);
+            //TestPage(repository);
+            //TestCountry(repository);
+            //TestSpenders(repository);
+            TestGenres(repository);
         }
+
 
         static void TestSelectAll(IRepository<Customer> repository)
         {
@@ -104,24 +105,31 @@ namespace ProjectB
             }
         }
 
-        private static void TestSelectName(ICustomerRepository customerRepository)
+        private static void TestSelectName(ICustomerRepository repository)
         {
-            PrintCustomers(customerRepository.GetByName("Hansen"));
+            PrintCustomers(repository.GetByName("Hansen"));
         }
 
-        private static void TestPage(ICustomerRepository customerRepository)
+        private static void TestPage(ICustomerRepository repository)
         {
-            PrintCustomers(customerRepository.GetCustomerPage(30, 30));
+            PrintCustomers(repository.GetCustomerPage(30, 30));
         }
 
-        private static void TestCountry(ICustomerRepository customerRepository)
+        private static void TestCountry(ICustomerRepository repository)
         {
-            PrintALLCountryPopulation(customerRepository.GetCountryCustomerPopulation());
+            PrintALLCountryPopulation(repository.GetCountryCustomerPopulation());
         }
 
-        private static void TestSpenders(ICustomerRepository customerRepository)
+        private static void TestSpenders(ICustomerRepository repository)
         {
-            PrintAllSpenders(customerRepository.GetHighestSpenders());
+            PrintAllSpenders(repository.GetHighestSpenders());
+        }
+
+        private static void TestGenres(ICustomerRepository repository)
+        {
+            Customer customer = repository.GetById(30);
+            var genre = repository.GetCustomersPopularGenre(customer).Genre;
+            Console.WriteLine($"{customer.FirstName} {customer.LastName} loves {genre}");
         }
 
         static void PrintCustomers(List<Customer> customers)

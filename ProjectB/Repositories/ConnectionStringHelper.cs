@@ -7,7 +7,7 @@ namespace ProjectB.Repositories
         public static string GetConnectionString()
         {
             SqlConnectionStringBuilder connectionStringBuilder = new SqlConnectionStringBuilder();
-            connectionStringBuilder.DataSource = @"STATIONARYDRAGO\SQLEXPRESS";
+            connectionStringBuilder.DataSource = @"DESKTOP-DLED5R6\SQLEXPRESS";
             connectionStringBuilder.InitialCatalog = "Chinook";
             connectionStringBuilder.IntegratedSecurity = true;
             connectionStringBuilder.TrustServerCertificate = true;
