@@ -140,7 +140,12 @@ namespace ProjectB.Repositories
         public List<CustomerSpender> GetHighestSpenders()
         {
             List<CustomerSpender> customerSpenderList = new List<CustomerSpender>();
-            string sql = "SELECT Customer.CustomerID, Customer.FirstName, Customer.LastName, Customer.Country, Customer.PostalCode, Customer.Phone, Customer.Email, Invoice.CustomerID, COUNT(Invoice.Total) FROM Customer INNER JOIN Invoice ON Customer.CustomerID = Invoice.CustomerID GROUP BY Customer.CustomerID ORDER BY COUNT(Invoice.Total) DESC";
+            string sql = 
+                "SELECT Customer.CustomerID, Customer.FirstName, Customer.LastName, Customer.Country, Customer.PostalCode, Customer.Phone, Customer.Email, Invoice.CustomerID, SUM(Invoice.Total) " +
+                "FROM Customer INNER JOIN Invoice " +
+                "ON Customer.CustomerID = Invoice.CustomerID " +
+                "GROUP BY Customer.CustomerID, Customer.FirstName, Customer.LastName, Customer.Country, Customer.PostalCode, Customer.Phone, Customer.Email, Invoice.CustomerID " +
+                "ORDER BY SUM(Invoice.Total) DESC";
 
             try
             {
@@ -168,6 +173,7 @@ namespace ProjectB.Repositories
 
                                 CustomerSpender spender = new CustomerSpender();
                                 spender.Customer = customer;
+                                int i = reader.GetInt32(7);
                                 spender.Amount = reader.GetDecimal(8);
                                 customerSpenderList.Add(spender);
                             }
