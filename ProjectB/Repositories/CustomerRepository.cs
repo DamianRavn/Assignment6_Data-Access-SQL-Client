@@ -8,6 +8,11 @@ namespace ProjectB.Repositories
 {
     class CustomerRepository : ICustomerRepository
     {
+        /// <summary>
+        /// ICustomerRepository specific. Get a customer by name
+        /// </summary>
+        /// <param name="name">the name of the customer. Can be first or last name</param>
+        /// <returns>A list of customers matching the name</returns>
         public List<Customer> GetByName(string name)
         {
             List<Customer> customerList = new List<Customer>();
@@ -53,7 +58,13 @@ namespace ProjectB.Repositories
             return customerList;
         }
 
-        public List<Customer> GetCustomerPage(int limit, int offset)
+        /// <summary>
+        /// ICustomerRepository specific. Gets customers from the database, with the correct offset and amount.
+        /// </summary>
+        /// <param name="offset">how many customers are we skipping</param>
+        /// <param name="limit">how many customers are wanted</param>
+        /// <returns>a 'page' of customers</returns>
+        public List<Customer> GetCustomerPage(int offset, int limit)
         {
             List<Customer> customerList = new List<Customer>();
             //Limit was a lie. wasted a lot of time trying to use LIMIT. use FETCH NEXT instead
@@ -99,6 +110,10 @@ namespace ProjectB.Repositories
             return customerList;
         }
 
+        /// <summary>
+        /// ICustomerRepository specific. How many customers per country?
+        /// </summary>
+        /// <returns>A list of CustomerCountry objects, representing the population per country</returns>
         public List<CustomerCountry> GetCountryCustomerPopulation()
         {
             List<CustomerCountry> customerList = new List<CustomerCountry>();
@@ -137,14 +152,18 @@ namespace ProjectB.Repositories
             return customerList;
         }
 
+        /// <summary>
+        /// ICustomerRepository specific. Goes through the invoice table to find the customers who spent the most
+        /// </summary>
+        /// <returns>A sorted list of customers and how much they have spent, highest first</returns>
         public List<CustomerSpender> GetHighestSpenders()
         {
             List<CustomerSpender> customerSpenderList = new List<CustomerSpender>();
             string sql = 
-                "SELECT Customer.CustomerID, Customer.FirstName, Customer.LastName, Customer.Country, Customer.PostalCode, Customer.Phone, Customer.Email, Invoice.CustomerID, SUM(Invoice.Total) " +
+                "SELECT Customer.CustomerID, Customer.FirstName, Customer.LastName, Customer.Country, Customer.PostalCode, Customer.Phone, Customer.Email, SUM(Invoice.Total) " +
                 "FROM Customer INNER JOIN Invoice " +
                 "ON Customer.CustomerID = Invoice.CustomerID " +
-                "GROUP BY Customer.CustomerID, Customer.FirstName, Customer.LastName, Customer.Country, Customer.PostalCode, Customer.Phone, Customer.Email, Invoice.CustomerID " +
+                "GROUP BY Customer.CustomerID, Customer.FirstName, Customer.LastName, Customer.Country, Customer.PostalCode, Customer.Phone, Customer.Email " +
                 "ORDER BY SUM(Invoice.Total) DESC";
 
             try
@@ -173,7 +192,7 @@ namespace ProjectB.Repositories
 
                                 CustomerSpender spender = new CustomerSpender();
                                 spender.Customer = customer;
-                                spender.Amount = reader.GetDecimal(8);
+                                spender.Amount = reader.GetDecimal(7);
                                 customerSpenderList.Add(spender);
                             }
                         }
@@ -188,16 +207,28 @@ namespace ProjectB.Repositories
             return customerSpenderList;
         }
 
+        /// <summary>
+        /// ICustomerRepository specific. Looks thought the invoice, invoiceLine, Track and Genre table to find the customers favorite genres (2 if tied. Never more)
+        /// </summary>
+        /// <param name="customer">A customer object. Has to have CustomerId</param>
+        /// <returns>A customergenre object with the needed information</returns>
         public CustomerGenre GetCustomersPopularGenre(Customer customer)
         {
-            CustomerGenre customerGenre = new CustomerGenre();
-            customerGenre.Customer = customer;
+            List<CustomerGenre> customerGenreList = new List<CustomerGenre>(2);
 
+            //Pretty much speaks for itself.
+            //Starting with the customerid, which is given as a paramater, we know which invoices we need, then we use those invoiceIds to find the trackIds, then we use those trackIds to find the genreId,
+            //Then we use that genreId to find genre, so we can group it by genre name and get the count of the same genre.
+            //Easy
             string sql =
-                "SELECT TOP 2 Invoice.InvoiceID, InvoiceLine.InvoiceID, InvoiceLine.TrackID" +
-                "FROM Invoice WHERE Invoice.CustomerId = @CustomerId " +
-                "INNER JOIN InvoiceLine " +
-                "ON Invoice.InvoiceID = InvoiceLine.InvoiceID";
+                "SELECT TOP 1 WITH TIES COUNT(Genre.GenreId), Genre.Name " +
+                "FROM Invoice " +
+                "INNER JOIN InvoiceLine ON Invoice.InvoiceID = InvoiceLine.InvoiceID " +
+                "INNER JOIN Track ON InvoiceLine.TrackId = Track.TrackId " +
+                "INNER JOIN Genre ON Track.GenreId = Genre.GenreId " +
+                "WHERE Invoice.CustomerId = @CustomerId " +
+                "GROUP BY Genre.Name " +
+                "ORDER BY COUNT(Genre.GenreId) DESC;";
 
             try
             {
@@ -215,10 +246,13 @@ namespace ProjectB.Repositories
                             while (reader.Read())
                             {
                                 //Handle result
-                                var i = reader.GetInt32(0);
-                                var ii = reader.GetInt32(1);
-                                var iii = reader.GetInt32(2);
-                                Console.WriteLine($"1: {i}, 2: {ii}, 3: {iii}");
+                                CustomerGenre customerGenre = new CustomerGenre();
+                                customerGenre.Customer = customer;
+
+                                customerGenre.BoughtTracks = reader.GetInt32(0);
+                                customerGenre.Genre = reader.GetString(1);
+
+                                customerGenreList.Add(customerGenre);
                             }
                         }
                     }
@@ -229,9 +263,31 @@ namespace ProjectB.Repositories
                 Console.Error.WriteLine(ex.Message);
             }
 
-            return customerGenre;
+            //Making sure to catch posible errors
+            //If the customer has not bought any tracks
+            if (customerGenreList.Count == 0)
+            {
+                CustomerGenre customerGenre = new CustomerGenre();
+                customerGenre.Customer = customer;
+                customerGenre.BoughtTracks = 0;
+                customerGenre.Genre = "Nothing";
+
+                return customerGenre;
+            }
+
+            //If count is not 1, it means that a genre is tied. Did not add support for more than 1 tie.
+            if (customerGenreList.Count != 1)
+            {
+                customerGenreList[0].Genre += " and " + customerGenreList[1].Genre;
+            }
+
+            return customerGenreList[0];
         }
 
+        /// <summary>
+        /// IRepository. Goes though the Customers table and gets the information needed for the customer object
+        /// </summary>
+        /// <returns>List of all Customer objects</returns>
         public List<Customer> GetAll()
         {
             List<Customer> customerList = new List<Customer>();
@@ -275,6 +331,11 @@ namespace ProjectB.Repositories
             return customerList;
         }
 
+        /// <summary>
+        /// IRepository. Use the a customer id to get the rest of the customer information
+        /// </summary>
+        /// <param name="id">has to correspond to a customer in the customer table</param>
+        /// <returns>the customer the id corresponds to</returns>
         public Customer GetById(int id)
         {
             Customer customer = new Customer();
@@ -322,6 +383,11 @@ namespace ProjectB.Repositories
             return customer;
         }
 
+        /// <summary>
+        /// IRepository. Add a customer to the table. Only the information from the customer object will be added, even though the table has more columns.
+        /// </summary>
+        /// <param name="customer">the customer to be added</param>
+        /// <returns>Did the insert succeed?</returns>
         public bool Add(Customer customer)
         {
             bool success = false;
@@ -355,6 +421,11 @@ namespace ProjectB.Repositories
             return success;
         }
 
+        /// <summary>
+        /// Delete a customer from the customer table. Uses the customerId
+        /// </summary>
+        /// <param name="customer">a customer object. Only customerId is important</param>
+        /// <returns>Did the delete succeed</returns>
         public bool Delete(Customer customer)
         {
             bool success = false;
@@ -383,6 +454,11 @@ namespace ProjectB.Repositories
             return success;
         }
 
+        /// <summary>
+        /// Updates a customer in the customer table to that of the customer object, using the customerId
+        /// </summary>
+        /// <param name="customer">a customer object, which has an id corresponding to a customer in the customer table</param>
+        /// <returns>Did the Update succeed</returns>
         public bool Update(Customer customer)
         {
             bool success = false;

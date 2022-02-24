@@ -1,6 +1,9 @@
 ﻿
 namespace ProjectB.Models
 {
+    /// <summary>
+    /// A data object meant to house a customer from the customer table in the chinook server
+    /// </summary>
     public class Customer
     {
         public int CustomerId { get; set; }

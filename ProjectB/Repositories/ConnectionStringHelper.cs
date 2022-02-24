@@ -2,6 +2,9 @@
 
 namespace ProjectB.Repositories
 {
+    /// <summary>
+    /// The only responsibility of this class is the return the correct connection string
+    /// </summary>
     public class ConnectionStringHelper
     {
         public static string GetConnectionString()

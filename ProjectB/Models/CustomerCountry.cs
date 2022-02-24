@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace ProjectB.Models
 {
+    /// <summary>
+    /// A data object meant to house a country and the amount of customers in it
+    /// </summary>
     public class CustomerCountry
     {
         public string Country { get; set; }

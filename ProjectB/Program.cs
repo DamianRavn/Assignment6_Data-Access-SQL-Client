@@ -22,7 +22,7 @@ namespace ProjectB
             //TestPage(repository);
             //TestCountry(repository);
             //TestSpenders(repository);
-            TestGenres(repository);
+            //TestGenres(repository);
         }
 
 
@@ -127,9 +127,15 @@ namespace ProjectB
 
         private static void TestGenres(ICustomerRepository repository)
         {
-            Customer customer = repository.GetById(30);
-            var genre = repository.GetCustomersPopularGenre(customer).Genre;
-            Console.WriteLine($"{customer.FirstName} {customer.LastName} loves {genre}");
+            var customers = repository.GetAll();
+            var customerGenreObjectsList = new List<CustomerGenre>();
+
+            foreach (var customer in customers)
+            {
+                customerGenreObjectsList.Add(repository.GetCustomersPopularGenre(customer));
+            }
+
+            PrintAllGenres(customerGenreObjectsList);
         }
 
         static void PrintCustomers(List<Customer> customers)
@@ -168,6 +174,18 @@ namespace ProjectB
         static void PrintSpender(CustomerSpender spender)
         {
             Console.WriteLine($"---- {spender.Customer.CustomerId} - {spender.Customer.FirstName} {spender.Customer.LastName} spent total: {spender.Amount} ----");
+        }
+
+        static void PrintAllGenres(List<CustomerGenre> customerGenreList)
+        {
+            foreach (var customerGenreObject in customerGenreList)
+            {
+                PrintGenre(customerGenreObject);
+            }
+        }
+        static void PrintGenre(CustomerGenre customerGenreObject)
+        {
+            Console.WriteLine($"{customerGenreObject.Customer.FirstName} {customerGenreObject.Customer.LastName} loves {customerGenreObject.Genre}, since they bought {customerGenreObject.BoughtTracks} tracks in that genre");
         }
     }
 }
