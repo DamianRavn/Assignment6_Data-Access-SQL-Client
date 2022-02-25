@@ -15,3 +15,37 @@ VALUES('Swimming','Gives superhero the power to swim very fast')
 INSERT INTO Power
 (Name, Description)
 VALUES('Agility','Makes superhero extra agile')
+
+
+
+INSERT INTO SuperheroPowers
+(SuperheroId, PowerID)
+VALUES(1,1)
+
+INSERT INTO SuperheroPowers
+(SuperheroId, PowerID)
+VALUES(1,3)
+
+INSERT INTO SuperheroPowers
+(SuperheroId, PowerID)
+VALUES(1,4)
+
+
+INSERT INTO SuperheroPowers
+(SuperheroId, PowerID)
+VALUES(2,1)
+
+
+INSERT INTO SuperheroPowers
+(SuperheroId, PowerID)
+VALUES(2,4)
+
+
+INSERT INTO SuperheroPowers
+(SuperheroId, PowerID)
+VALUES(3,1)
+
+
+INSERT INTO SuperheroPowers
+(SuperheroId, PowerID)
+VALUES(3,3)
